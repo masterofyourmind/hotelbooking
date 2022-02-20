@@ -15,20 +15,20 @@ Including another URLconf
 """
 from django.urls import path,include
 from . import views
-from knox import views as knox_views
 from .views import ChangePasswordView
 from rest_framework_simplejwt import views as jwt_views
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 urlpatterns = [
     path('hello/', views.index.as_view(), name='index'),
-    path('login/', views.login_api),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', views.LogoutAPIView.as_view(), name='auth_logout'),
+   # path('login/', views.login_api),
     path('user/', views.get_user_data),
     path('register/', views.register_api),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-
-    path('logout/', knox_views.LogoutView.as_view()),
-    path('logoutall/', knox_views.LogoutAllView.as_view()),
 
     path('api/change-password/', ChangePasswordView.as_view(), name='change-password'),
 

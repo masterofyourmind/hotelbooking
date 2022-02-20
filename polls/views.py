@@ -2,15 +2,15 @@ from django.http import HttpResponse
 from .models import Question
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.auth import AuthToken
 from .serializers import RegisterSerializer
 
 from rest_framework import status
-from rest_framework import generics
-from .serializers import ChangePasswordSerializer
+from rest_framework import generics, permissions
+from .serializers import ChangePasswordSerializer, LogoutSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 
 #FOR RESET PASSWORD
 # from django.dispatch import receiver
@@ -29,22 +29,37 @@ from rest_framework.permissions import IsAuthenticated
 #RESET PASS END
 
 # Create your views here.
-@api_view(['POST'])
-def login_api(request):
-    serializer = AuthTokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user  = serializer.validated_data['user']
-    _, token = AuthToken.objects.create(user)
-    print('geetting req',request)
-    return Response({
-        'user_info': {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'password': user.password
-        },
-        'token': token
-    })
+# @api_view(['POST'])
+# def login_api(request):
+#     serializer = AuthTokenSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     user  = serializer.validated_data['user']
+#     _, token = AuthToken.objects.create(user)
+#     print('geetting req',request)
+#     return Response({
+#         'user_info': {
+#             'id': user.id,
+#             'username': user.username,
+#             'email': user.email,
+#             'password': user.password
+#         },
+#         'token': token
+#     })
+
+
+class LogoutAPIView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET'])
 def get_user_data(request):
@@ -56,7 +71,8 @@ def get_user_data(request):
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'password': user.password,
+            'first_name': user.first_name,
+            'last_name': user.last_name
             },
         })
     return Response({'error': 'not authenticated'}, status=400)
@@ -67,7 +83,7 @@ def register_api(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         user = serializer.save()
-        _, token = AuthToken.objects.create(user)
+       # _, token = AuthToken.objects.create(user)
 
         return Response({
             'user_info': {
@@ -75,7 +91,7 @@ def register_api(request):
                 'username': user.username,
                 'email': user.email
                 },
-                'token': token
+               # 'token': token
             })
     
 from rest_framework.views import APIView
@@ -135,6 +151,20 @@ class ChangePasswordView(generics.UpdateAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+def post(self, request):
+    return self.logout(request)
+
+def logout(self, request):
+    try:
+        request.user.auth_token.delete()
+    except (AttributeError):
+        pass
+
+    logout(request)
+
+    return Response({"success": _("Successfully logged out.")},
+                    status=status.HTTP_200_OK)
 '''class CustomPasswordResetView:
     @receiver(reset_password_token_created)
     def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
