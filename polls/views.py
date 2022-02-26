@@ -12,40 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 
-#FOR RESET PASSWORD
-# from django.dispatch import receiver
-# from django_rest_passwordreset.signals import reset_password_token_created
-# from django.core.mail import EmailMultiAlternatives
-# from django.template.loader import render_to_string
-# from vuedj.constants import site_url, site_full_name, site_shortcut_name
-# from rest_framework.views import APIView
-# from rest_framework import parsers, renderers, status
-# from rest_framework.response import Response
-# from .serializers import CustomTokenSerializer
-# from django_rest_passwordreset.models import ResetPasswordToken
-# from django_rest_passwordreset.views import get_password_reset_token_expiry_time
-# from django.utils import timezone
-# from datetime import timedelta 
-#RESET PASS END
-
-# Create your views here.
-# @api_view(['POST'])
-# def login_api(request):
-#     serializer = AuthTokenSerializer(data=request.data)
-#     serializer.is_valid(raise_exception=True)
-#     user  = serializer.validated_data['user']
-#     _, token = AuthToken.objects.create(user)
-#     print('geetting req',request)
-#     return Response({
-#         'user_info': {
-#             'id': user.id,
-#             'username': user.username,
-#             'email': user.email,
-#             'password': user.password
-#         },
-#         'token': token
-#     })
-
 
 class LogoutAPIView(generics.GenericAPIView):
     serializer_class = LogoutSerializer

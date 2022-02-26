@@ -43,7 +43,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
-    default_error_message = {
+    default_error_messages = {
         'bad_token': ('Token is expired or invalid')
     }
 
